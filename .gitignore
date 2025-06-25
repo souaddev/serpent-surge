@@ -9,13 +9,6 @@ docker-compose.override.yml
 # Database
 mysql/data/
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-
 # Configuration files
 *.conf
 
