@@ -1,0 +1,51 @@
+---
+- name: Deploy Serpent Surge Game
+  hosts: env_development
+  
+  become: true
+  tasks:
+    - name: Create application directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - /opt/serpent-surge
+        - /opt/serpent-surge/frontend
+        - /opt/serpent-surge/backend
+        - /opt/serpent-surge/mysql
+
+    - name: Copy frontend files
+      copy:
+        src: ../../frontend/
+        dest: /opt/serpent-surge/frontend/
+        mode: preserve
+
+    - name: Copy backend files
+      copy:
+        src: ../../backend/
+        dest: /opt/serpent-surge/backend/
+        mode: preserve
+
+    - name: Copy configuration files
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+        - { src: "../../docker-compose.yml", dest: "/opt/serpent-surge/docker-compose.yml" }
+        - { src: "../../.env", dest: "/opt/serpent-surge/.env" }
+        - { src: "../../frontend/nginx.conf", dest: "/opt/serpent-surge/frontend/nginx.conf" }
+        - { src: "../../mysql/init.sql", dest: "/opt/serpent-surge/mysql/init.sql" }
+
+    - name: Run docker-compose
+      community.docker.docker_compose_v2:
+        project_src: /opt/serpent-surge
+        state: present
+    
+    - name: Restart backend container
+      command: docker restart serpent-backend
+      register: restart_output
+
+    - name: Show restart status
+      debug:
+        var: restart_output.stdout

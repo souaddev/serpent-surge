@@ -1,0 +1,7 @@
+---
+- name: Import Docker Installation Playbook
+  import_playbook: docker/docker-install.yml
+
+- name: Import Game Deployment Playbook
+  import_playbook: deploy/deploy-game.yml
+

@@ -1,0 +1,47 @@
+---
+- name: Install Docker on Amazon Linux
+  hosts: env_development
+  become: true
+
+  tasks:
+    - name: Update yum cache
+      yum:
+        update_cache: yes
+
+    - name: Install Docker dependencies
+      yum:
+        name:
+          - docker
+        state: present
+
+    - name: Create docker cli-plugins directory
+      file:
+        path: /usr/local/libexec/docker/cli-plugins
+        state: directory
+        mode: '0755'
+
+
+    - name: Create docker cli-plugins directory
+      file:
+        path: /usr/local/libexec/docker/cli-plugins
+        state: directory
+        mode: '0755'
+
+    - name: Install Docker Compose plugin
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.20.3/docker-compose-linux-x86_64
+        dest: /usr/local/libexec/docker/cli-plugins/docker-compose
+        mode: '0755'
+
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+        
